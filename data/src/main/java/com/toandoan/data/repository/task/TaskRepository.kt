@@ -6,9 +6,7 @@ import com.toandoan.domain.repository.TaskRepository
 class TaskRepositoryImpl constructor(
     private val taskLocalDataSource: TaskLocalDataSource
 ) : TaskRepository {
-    override fun isExistTask(title: String): Boolean {
-        return taskLocalDataSource.isExistTask(title)
-    }
+    override fun isExistTask(title: String) = taskLocalDataSource.isExistTask(title)
 
     override fun getTasks(query: String) = taskLocalDataSource.getTasks(query)
 

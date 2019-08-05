@@ -5,25 +5,33 @@ import com.toandoan.domain.repository.TaskRepository
 import com.toandoan.domain.usecase.UseCase
 import com.toandoan.domain.usecase.task.CreateTaskUseCase.ErrorMessage.TASK_EXIST
 import com.toandoan.domain.usecase.task.CreateTaskUseCase.ErrorMessage.TITLE_EMPTY
+import io.reactivex.Observable
+import io.reactivex.Single
 
 class CreateTaskUseCase constructor(
     private val taskRepository: TaskRepository
 ) : UseCase<CreateTaskUseCase.Parram, Task> {
+
     /**
      * If title is empty throw exeption
      * If this task is exist, throw an exeption
      */
-    override fun execute(parram: Parram): Task {
-        if (parram.title.isEmpty()) {
-            throw IllegalArgumentException(TITLE_EMPTY)
-        }
-        if (taskRepository.isExistTask(parram.title)) {
-            throw TitleExistExeption(TASK_EXIST)
-        }
-        return taskRepository.insertTask(
-            parram.title,
-            parram.isDone
-        )
+    override fun execute(parram: Parram): Observable<Task> {
+        return Single.just(parram.title)
+            .flatMap { title ->
+                if (title.isEmpty()) {
+                    Single.error(java.lang.IllegalArgumentException(TITLE_EMPTY))
+                } else {
+                    taskRepository.isExistTask(title)
+                }
+            }
+            .flatMap { isExist ->
+                if (isExist) {
+                    Single.error(TitleExistExeption(TASK_EXIST))
+                } else
+                    taskRepository.insertTask(parram.title, parram.isDone)
+            }
+            .toObservable()
     }
 
 

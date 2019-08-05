@@ -4,16 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.toandoan.cleanarchitechture.base.AppScheduler
 import com.toandoan.cleanarchitechture.enity.TaskItem
 import com.toandoan.cleanarchitechture.enity.TaskItemMapper
 import com.toandoan.domain.usecase.task.CreateTaskUseCase
 import com.toandoan.domain.usecase.task.GetTaskUseCase
+import io.reactivex.disposables.CompositeDisposable
 
 class TaskViewModel(
     private val getTaskUseCase: GetTaskUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
-    private val mapper: TaskItemMapper
+    private val mapper: TaskItemMapper,
+    private val scheduler: AppScheduler
 ) : ViewModel() {
+    private val compositeDisposable = CompositeDisposable()
 
     private val _tasks = MutableLiveData<List<TaskItem>>()
     val tasks: LiveData<List<TaskItem>>
@@ -28,33 +32,51 @@ class TaskViewModel(
     }
 
     private fun loadTasks() {
-        val taskUseCase = getTaskUseCase
+        val disposable = getTaskUseCase
             .execute()
+            .flatMapIterable { it }
             .map { mapper.mapToPresentation(it) }
-        _tasks.postValue(taskUseCase)
+            .toList()
+            .subscribeOn(scheduler.io())
+            .observeOn(scheduler.androidMainThread())
+            .subscribe({ tasks ->
+                _tasks.postValue(tasks)
+            }, { error ->
+                // handle later
+            })
+        compositeDisposable.add(disposable)
     }
 
     fun addTask(title: String) {
-        try {
-            val addedTaskUseCase = createTaskUseCase
-                .execute(CreateTaskUseCase.Parram(title))
-            _addedTask.postValue(mapper.mapToPresentation(addedTaskUseCase))
-        } catch (e: IllegalArgumentException) {
+        val disposable = createTaskUseCase
+            .execute(CreateTaskUseCase.Parram(title))
+            .map { mapper.mapToPresentation(it) }
+            .subscribeOn(scheduler.io())
+            .observeOn(scheduler.androidMainThread())
+            .subscribe({ task ->
+                _addedTask.postValue(task)
+            }, { error ->
+                // handle later
+            })
 
-        } catch (e: CreateTaskUseCase.TitleExistExeption) {
+        compositeDisposable.add(disposable)
+    }
 
-        }
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 }
 
 class TaskViewModelFactory constructor(
     private val getTaskUseCase: GetTaskUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
-    private val mapper: TaskItemMapper
+    private val mapper: TaskItemMapper,
+    private val scheduler: AppScheduler
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(getTaskUseCase, createTaskUseCase, mapper) as T
+            return TaskViewModel(getTaskUseCase, createTaskUseCase, mapper, scheduler) as T
         }
         throw IllegalArgumentException("Unknow ViewModel class")
     }

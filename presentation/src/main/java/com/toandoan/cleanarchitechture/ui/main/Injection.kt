@@ -1,6 +1,7 @@
 package com.toandoan.cleanarchitechture.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
+import com.toandoan.cleanarchitechture.base.AppSchedulerImpl
 import com.toandoan.cleanarchitechture.enity.TaskItemMapper
 import com.toandoan.data.local.TaskDatabase
 import com.toandoan.data.local.TaskLocalDataSource
@@ -26,6 +27,8 @@ object Injection {
         )
     }
 
+    val scheduler = AppSchedulerImpl()
+
     val repository by lazy { TaskRepositoryImpl(localDataSource) }
 
     val createTaskUseCase by lazy { CreateTaskUseCase(repository) }
@@ -39,7 +42,8 @@ object Injection {
         mainActivity.viewModel = TaskViewModelFactory(
             getTaskUseCase,
             createTaskUseCase,
-            itemMapper
+            itemMapper,
+            scheduler
         ).create(TaskViewModel::class.java)
     }
 }

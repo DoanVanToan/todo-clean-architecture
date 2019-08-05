@@ -8,5 +8,5 @@ class GetTaskUseCase constructor(
     private val taskRepository: TaskRepository
 ) : WithoutParramUseCase<List<Task>> {
 
-    override fun execute(): List<Task> = taskRepository.getTasks()
+    override fun execute() = taskRepository.getTasks().toObservable()
 }
