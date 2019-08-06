@@ -10,7 +10,7 @@ import com.toandoan.cleanarchitechture.enity.TaskItem
 
 class TaskAdapter(
     private val tasks: MutableList<TaskItem>,
-    private val onClick: (TaskItem) -> Any?
+    private val onClick: ((TaskItem) -> Any)?
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,9 +30,14 @@ class TaskAdapter(
         notifyItemInserted(itemCount - 1)
     }
 
+    fun clear() {
+        tasks.clear()
+        notifyDataSetChanged()
+    }
+
     class ViewHolder constructor(
         view: View,
-        onClick: (TaskItem) -> Any?
+        onClick: ((TaskItem) -> Any)?
     ) : RecyclerView.ViewHolder(view) {
         private lateinit var task: TaskItem
         private var textPosition: TextView
@@ -49,7 +54,6 @@ class TaskAdapter(
         }
 
         fun bindData(task: TaskItem) {
-            if (task == null) return
             this.task = task
             textPosition.text = "${adapterPosition + 1}"
             textTaskname.text = task.title

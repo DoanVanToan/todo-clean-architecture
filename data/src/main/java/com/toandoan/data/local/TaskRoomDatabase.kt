@@ -19,6 +19,9 @@ interface TaskDAO {
 
     @Insert
     fun insertTask(task: TaskEnity)
+
+    @Query("DELETE FROM ${TaskEntry.TABLE_NAME}")
+    fun deleteTasks()
 }
 
 @Database(entities = arrayOf(TaskEnity::class), version = VERSION)

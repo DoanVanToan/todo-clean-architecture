@@ -33,6 +33,7 @@ dependencies {
     def lifecycle_version = "2.0.0"
     def rxJavaVersion = "2.1.1"
     def rxAndroidVersion = "2.1.1"
+    def koinVersion = "2.0.1"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -76,4 +77,20 @@ dependencies {
     //Rx Java + Rx Android
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+
+    // Koin for Kotlin
+    implementation "org.koin:koin-core:$koinVersion"
+    // Koin extended & experimental features
+    implementation "org.koin:koin-core-ext:$koinVersion"
+    // Koin for Unit tests
+    testImplementation "org.koin:koin-test:$koinVersion"
+    // Koin for Java developers
+    implementation "org.koin:koin-java:$koinVersion"
+    // Koin AndroidX Scope features
+    implementation "org.koin:koin-androidx-scope:$koinVersion"
+    // Koin AndroidX ViewModel features
+    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
+    // Koin AndroidX Experimental features
+    implementation "org.koin:koin-androidx-ext:$koinVersion"
+
 }

@@ -3,4 +3,7 @@
     <string name="action_create_task">Create task</string>
     <string name="hint_search_name">Name</string>
     <string name="hint_input_task_title">Input task title</string>
+	<string name="action_delete">Delete tasks</string>
+	<string name="msg_delete_all_tasks_success_full">Delete tasks successfull.</string>
+	<string name="error_undefine_delete_all_tasks_succesful">Something wrong, delete all task failed</string>
 </resources>
