@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.toandoan.cleanarchitechture.enity.TaskItemMapper
 import com.toandoan.data.local.TaskDatabase
 import com.toandoan.data.local.TaskLocalDataSource
-import com.toandoan.data.model.TaskEnityMapper
+import com.toandoan.data.model.task.TaskEnityMapper
 import com.toandoan.data.repository.task.TaskRepositoryImpl
 import com.toandoan.domain.usecase.task.CreateTaskUseCase
 import com.toandoan.domain.usecase.task.GetTaskUseCase

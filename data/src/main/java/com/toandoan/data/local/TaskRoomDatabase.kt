@@ -3,8 +3,8 @@ package com.toandoan.data.local
 import android.content.Context
 import androidx.room.*
 import com.toandoan.data.local.TaskDatabase.Companion.VERSION
-import com.toandoan.data.model.TaskEnity
-import com.toandoan.data.model.TaskEntry
+import com.toandoan.data.model.task.TaskEnity
+import com.toandoan.data.model.task.TaskEntry
 
 @Dao
 interface TaskDAO {

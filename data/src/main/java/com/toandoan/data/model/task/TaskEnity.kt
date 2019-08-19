@@ -1,8 +1,10 @@
-package com.toandoan.data.model
+package com.toandoan.data.model.task
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.toandoan.data.model.EnityMapper
+import com.toandoan.data.model.EnityModel
 import com.toandoan.domain.model.Task
 
 @Entity(tableName = TaskEntry.TABLE_NAME)

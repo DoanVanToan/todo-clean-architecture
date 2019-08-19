@@ -1,7 +1,7 @@
 package com.toandoan.data.local
 
-import com.toandoan.data.model.TaskEnity
-import com.toandoan.data.model.TaskEnityMapper
+import com.toandoan.data.model.task.TaskEnity
+import com.toandoan.data.model.task.TaskEnityMapper
 import com.toandoan.domain.model.Task
 import com.toandoan.domain.repository.TaskRepository
 import kotlin.random.Random
@@ -20,7 +20,11 @@ class TaskLocalDataSource constructor(
     }
 
     override fun insertTask(title: String, isDone: Boolean): Task {
-        val task = TaskEnity(id = Random.nextLong(), title = title, isDone = isDone)
+        val task = TaskEnity(
+            id = Random.nextLong(),
+            title = title,
+            isDone = isDone
+        )
         taskDAO.insertTask(task)
         return mapper.mapToDomain(task)
     }
