@@ -3,20 +3,24 @@ package com.toandoan.domain.usecase.task
 import com.toandoan.domain.model.Task
 import com.toandoan.domain.repository.TaskRepository
 import com.toandoan.domain.usecase.UseCase
-import com.toandoan.domain.usecase.task.CreateTaskUseCase.ErrorMessage.TASK_EXIST
-import com.toandoan.domain.usecase.task.CreateTaskUseCase.ErrorMessage.TITLE_EMPTY
+import com.toandoan.domain.usecase.task.CreateTaskUseCaseImpl.ErrorMessage.TASK_EXIST
+import com.toandoan.domain.usecase.task.CreateTaskUseCaseImpl.ErrorMessage.TITLE_EMPTY
 import io.reactivex.Observable
 import io.reactivex.Single
 
-class CreateTaskUseCase constructor(
+interface CreateTaskUseCase : UseCase<CreateTaskUseCase.Parram, Task> {
+    class Parram(val title: String, val isDone: Boolean = false)
+}
+
+class CreateTaskUseCaseImpl constructor(
     private val taskRepository: TaskRepository
-) : UseCase<CreateTaskUseCase.Parram, Task> {
+) : CreateTaskUseCase {
 
     /**
      * If title is empty throw exeption
      * If this task is exist, throw an exeption
      */
-    override fun execute(parram: Parram): Observable<Task> {
+    override fun execute(parram: CreateTaskUseCase.Parram): Observable<Task> {
         return Single.just(parram.title)
             .flatMap { title ->
                 if (title.isEmpty()) {
@@ -33,9 +37,6 @@ class CreateTaskUseCase constructor(
             }
             .toObservable()
     }
-
-
-    class Parram(val title: String, val isDone: Boolean = false)
 
     class TitleExistExeption(message: String) : Exception(message)
 

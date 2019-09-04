@@ -1,17 +1,16 @@
 package com.toandoan.cleanarchitechture.di
 
-import com.toandoan.domain.usecase.task.CreateTaskUseCase
-import com.toandoan.domain.usecase.task.DeleteAllTaskUseCase
-import com.toandoan.domain.usecase.task.GetTaskUseCase
-import com.toandoan.domain.usecase.task.SearchTaskUseCase
+import com.toandoan.domain.usecase.task.*
 import org.koin.dsl.module
 
 val appModule = module {
-    single { CreateTaskUseCase(get()) }
+    single<CreateTaskUseCase> { CreateTaskUseCaseImpl(get()) }
 
-    single { GetTaskUseCase(get()) }
+    single<GetTaskUseCase> { GetTaskUseCaseImpl(get()) }
 
-    single { SearchTaskUseCase(get()) }
+    single<SearchTaskUseCase> { SearchTaskUseCaseImpl(get()) }
 
-    single { DeleteAllTaskUseCase(get()) }
+    single<DeleteAllTaskUseCase> { DeleteAllTaskUseCaseImpl(get()) }
+
+    single<DeleteTaskUseCase> { DeleteTaskUseCaseImpl(get()) }
 }

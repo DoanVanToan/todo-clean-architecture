@@ -8,7 +8,7 @@ import com.toandoan.data.model.TaskEntry
 
 @Dao
 interface TaskDAO {
-    @Query("SELECT * FROM ${TaskEntry.TABLE_NAME}")
+    @Query("SELECT * FROM ${TaskEntry.TABLE_NAME} ORDER BY ${TaskEntry.ID} DESC")
     fun getTasks(): List<TaskEnity>
 
     @Query("SELECT * FROM ${TaskEntry.TABLE_NAME} WHERE ${TaskEntry.TITLE} LIKE :title")
@@ -22,6 +22,9 @@ interface TaskDAO {
 
     @Query("DELETE FROM ${TaskEntry.TABLE_NAME}")
     fun deleteTasks()
+
+    @Query("DELETE FROM ${TaskEntry.TABLE_NAME} WHERE ${TaskEntry.ID} = :taskId")
+    fun deleteTask(taskId: Int): Int
 }
 
 @Database(entities = arrayOf(TaskEnity::class), version = VERSION)

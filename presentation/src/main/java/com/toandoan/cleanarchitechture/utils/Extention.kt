@@ -4,7 +4,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 
-
 fun Context.toast(messsage: String) {
     Toast.makeText(
         this,

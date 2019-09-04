@@ -2,7 +2,7 @@ package com.toandoan.cleanarchitechture.di
 
 import com.toandoan.cleanarchitechture.base.AppScheduler
 import com.toandoan.cleanarchitechture.base.AppSchedulerImpl
-import com.toandoan.cleanarchitechture.enity.TaskItemMapper
+import com.toandoan.cleanarchitechture.model.TaskItemMapper
 import com.toandoan.data.local.TaskDatabase
 import com.toandoan.data.local.TaskLocalDataSource
 import com.toandoan.data.model.TaskEnityMapper

@@ -12,6 +12,13 @@ class TaskLocalDataSource constructor(
     private val taskDAO: TaskDAO,
     private val mapper: TaskEnityMapper
 ) : TaskRepository {
+    override fun deleteTask(task: Task): Single<Boolean> {
+        return Single.create {
+            val deletedRecord = taskDAO.deleteTask(task.id.toInt())
+            it.onSuccess(deletedRecord != -1)
+        }
+    }
+
     override fun deleteTasks(): Completable {
         return Completable.fromAction {
             taskDAO.deleteTasks()
@@ -39,7 +46,7 @@ class TaskLocalDataSource constructor(
     }
 
     override fun getTasks(): Single<List<Task>> {
-        return Single.fromCallable{
+        return Single.fromCallable {
             taskDAO.getTasks().map { mapper.mapToDomain(it) }
         }
     }

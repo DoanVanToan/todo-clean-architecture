@@ -6,20 +6,23 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.toandoan.cleanarchitechture.R
+import com.toandoan.cleanarchitechture.base.BaseActivity
 import com.toandoan.cleanarchitechture.base.Status
-import com.toandoan.cleanarchitechture.enity.TaskItem
+import com.toandoan.cleanarchitechture.model.TaskItem
+import com.toandoan.cleanarchitechture.ui.taskdetail.TaskDetailArgs
+import com.toandoan.cleanarchitechture.utils.addTouchHelper
 import com.toandoan.cleanarchitechture.utils.toast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
-    private val viewModel: TaskViewModel by viewModel()
+class TaskActivity : BaseActivity(), TaskNavigator {
 
-    lateinit var taskAdapter: TaskAdapter
+    private val viewModel: TaskViewModel by viewModel()
+    private lateinit var taskAdapter: TaskAdapter
+
     private val dialog by lazy {
         ProgressDialog(this)
     }
@@ -27,8 +30,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initRecylerView()
         observeViewModel()
         initListener()
+    }
+
+    override fun openTaskDetail(task: TaskItem) {
+        TaskDetailArgs(task).launch(this)
     }
 
     private fun initListener() {
@@ -39,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeTasks() {
-        viewModel.tasks.observe(this@MainActivity, Observer {
+        viewModel.tasks.observe(this@TaskActivity, Observer {
             when (it.status) {
                 Status.LOADING -> showLoadingIndicator()
                 Status.SUCCESS -> {
@@ -55,12 +63,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeAddedTasks() {
-        viewModel.addedTask.observe(this@MainActivity, Observer {
+        viewModel.addedTask.observe(this@TaskActivity, Observer {
             when (it.status) {
                 Status.LOADING -> showLoadingIndicator()
                 Status.SUCCESS -> {
                     hideLoadingIndicator()
-                    displayAddedTask(it.data!!)
                 }
                 Status.ERROR -> {
                     hideLoadingIndicator()
@@ -71,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeDeletedTask() {
-        viewModel.isDeleteAllTaskSuccesfull.observe(this@MainActivity, Observer {
+        viewModel.isDeleteAllTaskSuccesfull.observe(this@TaskActivity, Observer {
             when (it.status) {
                 Status.LOADING -> showLoadingIndicator()
                 Status.ERROR -> {
@@ -83,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                     it.data?.let {
                         if (it) {
                             toast(R.string.msg_delete_all_tasks_success_full)
-                            taskAdapter.clear()
                         } else {
                             toast(R.string.error_undefine_delete_all_tasks_succesful)
                         }
@@ -118,19 +124,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayAddedTask(addedTask: TaskItem) {
-        taskAdapter.addTask(addedTask)
+    private fun initRecylerView() {
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_tasks)
+        with(recyclerView) {
+            layoutManager = LinearLayoutManager(this@TaskActivity)
+            taskAdapter = TaskAdapter { item ->
+                openTaskDetail(item)
+            }
+            adapter = taskAdapter
+
+            val callback = ItemTouchHelperCallback { position, _ ->
+                viewModel.deleteTask(taskAdapter.getTask(position))
+            }
+            addTouchHelper(callback)
+        }
     }
 
     private fun displayTasks(tasks: List<TaskItem>) {
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_tasks)
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            taskAdapter = TaskAdapter(tasks.toMutableList()) { item ->
-                toast(item.title)
-            }
-            adapter = taskAdapter
-        }
+        taskAdapter.updateData(tasks)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -146,4 +157,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+
 

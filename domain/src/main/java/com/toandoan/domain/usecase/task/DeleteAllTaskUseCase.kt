@@ -5,13 +5,14 @@ import com.toandoan.domain.usecase.WithoutParramUseCase
 import io.reactivex.Completable
 import io.reactivex.Observable
 
-class DeleteAllTaskUseCase(
+interface DeleteAllTaskUseCase : WithoutParramUseCase<Boolean>
+
+class DeleteAllTaskUseCaseImpl(
     private val repository: TaskRepository
-) : WithoutParramUseCase<Boolean> {
+) : DeleteAllTaskUseCase {
     override fun execute(): Observable<Boolean> {
         return repository.deleteTasks().toObservableBoolean()
     }
-
 }
 
 fun Completable.toObservableBoolean(): Observable<Boolean> {

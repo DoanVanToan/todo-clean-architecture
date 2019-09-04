@@ -1,3 +1,5 @@
 package com.toandoan.domain.model
 
-open class DomainModel
+import java.io.Serializable
+
+open class DomainModel : Serializable

@@ -2,30 +2,27 @@ package com.toandoan.cleanarchitechture.ui.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.toandoan.cleanarchitechture.base.AppScheduler
+import com.toandoan.cleanarchitechture.base.BaseViewModel
 import com.toandoan.cleanarchitechture.base.DataWrapper
-import com.toandoan.cleanarchitechture.enity.TaskItem
-import com.toandoan.cleanarchitechture.enity.TaskItemMapper
+import com.toandoan.cleanarchitechture.model.TaskItem
+import com.toandoan.cleanarchitechture.model.TaskItemMapper
 import com.toandoan.domain.usecase.task.CreateTaskUseCase
 import com.toandoan.domain.usecase.task.DeleteAllTaskUseCase
+import com.toandoan.domain.usecase.task.DeleteTaskUseCase
 import com.toandoan.domain.usecase.task.GetTaskUseCase
-import io.reactivex.disposables.CompositeDisposable
 
 class TaskViewModel(
     private val getTaskUseCase: GetTaskUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
     private val deleteAllTaskUseCase: DeleteAllTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     private val mapper: TaskItemMapper,
     private val scheduler: AppScheduler
-) : ViewModel() {
-    // Composite disposable to manage disposable avoid memory leak
-    private val compositeDisposable = CompositeDisposable()
-
+) : BaseViewModel() {
     // LiveData to show all tasks in database
-    private val _tasks = MutableLiveData<DataWrapper<List<TaskItem>>>()
-    val tasks: LiveData<DataWrapper<List<TaskItem>>>
+    private val _tasks = MutableLiveData<DataWrapper<MutableList<TaskItem>>>()
+    val tasks: LiveData<DataWrapper<MutableList<TaskItem>>>
         get() = _tasks
 
     // LiveData to show recently added task
@@ -37,6 +34,13 @@ class TaskViewModel(
     private val _isDeleteAllTasksSucessful = MutableLiveData<DataWrapper<Boolean>>()
     val isDeleteAllTaskSuccesfull: LiveData<DataWrapper<Boolean>>
         get() = _isDeleteAllTasksSucessful
+
+    /**
+     * Trigger to annouce user for delete one Task success or error.
+     */
+    private val _isDeleteTaskSuccessful = MutableLiveData<DataWrapper<Boolean>>()
+    val isDeleteTaskSuccess: LiveData<DataWrapper<Boolean>>
+        get() = _isDeleteTaskSuccessful
 
     init {
         loadTasks()
@@ -68,6 +72,9 @@ class TaskViewModel(
             .observeOn(scheduler.androidMainThread())
             .subscribe({ task ->
                 _addedTask.postValue(DataWrapper.success(task))
+                _tasks.value = tasks.value?.apply {
+                    data?.add(task)
+                }
             }, {
                 _addedTask.postValue(DataWrapper.error(it.toError()))
             })
@@ -83,32 +90,30 @@ class TaskViewModel(
             .observeOn(scheduler.androidMainThread())
             .subscribe({
                 _isDeleteAllTasksSucessful.postValue(DataWrapper.success(it))
+                _tasks.value = DataWrapper.success(arrayListOf())
             }, {
                 _isDeleteAllTasksSucessful.postValue(DataWrapper.error(it.toError()))
             })
         compositeDisposable.add(disposable)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        compositeDisposable.clear()
+    fun deleteTask(taskItem: TaskItem) {
+        val task = mapper.mapToDomain(taskItem)
+        val disposable = deleteTaskUseCase
+            .execute(task)
+            .doOnSubscribe { }
+            .subscribe({ isSuccess ->
+                if (isSuccess) {
+                    _isDeleteTaskSuccessful.value = DataWrapper.success(isSuccess)
+                    _tasks.value = tasks.value?.apply {
+                        data?.remove(taskItem)
+                    }
+                }
+            }, {
+                _isDeleteTaskSuccessful.value = DataWrapper.error(it.toError())
+            })
+        compositeDisposable.add(disposable)
     }
-}
-
-class TaskViewModelFactory constructor(
-    private val getTaskUseCase: GetTaskUseCase,
-    private val createTaskUseCase: CreateTaskUseCase,
-    private val deleteAllTaskUseCase: DeleteAllTaskUseCase,
-    private val mapper: TaskItemMapper,
-    private val scheduler: AppScheduler
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-            return TaskViewModel(getTaskUseCase, createTaskUseCase, deleteAllTaskUseCase, mapper, scheduler) as T
-        }
-        throw IllegalArgumentException("Unknow ViewModel class")
-    }
-
 }
 
 fun Throwable.toError(): Error {

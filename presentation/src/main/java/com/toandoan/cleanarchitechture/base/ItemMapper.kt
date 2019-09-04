@@ -1,6 +1,6 @@
 package com.toandoan.cleanarchitechture.base
 
-import com.toandoan.cleanarchitechture.enity.ItemModel
+import com.toandoan.cleanarchitechture.model.ItemModel
 import com.toandoan.domain.model.DomainModel
 
 interface ItemMapper<DM : DomainModel, IM : ItemModel> {

@@ -4,9 +4,11 @@ import com.toandoan.domain.model.Task
 import com.toandoan.domain.repository.TaskRepository
 import com.toandoan.domain.usecase.WithoutParramUseCase
 
-class GetTaskUseCase constructor(
+interface GetTaskUseCase : WithoutParramUseCase<List<Task>>
+
+class GetTaskUseCaseImpl constructor(
     private val taskRepository: TaskRepository
-) : WithoutParramUseCase<List<Task>> {
+) : GetTaskUseCase {
 
     override fun execute() = taskRepository.getTasks().toObservable()
 }

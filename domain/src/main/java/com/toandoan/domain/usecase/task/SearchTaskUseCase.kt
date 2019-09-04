@@ -6,9 +6,11 @@ import com.toandoan.domain.usecase.UseCase
 import io.reactivex.Observable
 import io.reactivex.Single
 
-class SearchTaskUseCase constructor(
+interface SearchTaskUseCase : UseCase<String, List<Task>>
+
+class SearchTaskUseCaseImpl constructor(
     private val taskRepository: TaskRepository
-) : UseCase<String, List<Task>> {
+) : SearchTaskUseCase {
 
     /**
      * if parram is null or empty get all task

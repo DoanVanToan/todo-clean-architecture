@@ -14,4 +14,6 @@ interface TaskRepository : Repository {
     fun isExistTask(title: String): Single<Boolean>
 
     fun deleteTasks(): Completable
+
+    fun deleteTask(task: Task): Single<Boolean>
 }
